@@ -1,0 +1,192 @@
+object dm_main: Tdm_main
+  OnCreate = DataModuleCreate
+  OldCreateOrder = False
+  Height = 567
+  HorizontalOffset = 357
+  VerticalOffset = 174
+  Width = 730
+  object conn_server: TMySQL56Connection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    Transaction = SQLT_Server
+    LogEvents = []
+    left = 528
+    top = 16
+  end
+  object conn_client: TSQLite3Connection
+    Connected = False
+    LoginPrompt = False
+    DatabaseName = 'C:\Sources\TheRemoteBackup\TRB_DB.sqlite'
+    KeepConnection = False
+    Transaction = SQLT_Client
+    HostName = 'localhost'
+    LogEvents = []
+    Options = []
+    left = 16
+    top = 16
+  end
+  object SQLT_Server: TSQLTransaction
+    Active = False
+    Database = conn_server
+    left = 600
+    top = 16
+  end
+  object SQLT_Client: TSQLTransaction
+    Active = False
+    Database = conn_client
+    left = 88
+    top = 16
+  end
+  object dsAccount: TDataSource
+    DataSet = sqlAccount
+    left = 88
+    top = 80
+  end
+  object sqlAccount: TSQLQuery
+    FieldDefs = <    
+      item
+        Name = 'DOC'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end    
+      item
+        Name = 'ACCESSKEY'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end    
+      item
+        Name = 'password'
+        DataType = ftString
+        Precision = -1
+        Size = 15
+      end>
+    Database = conn_client
+    Transaction = SQLT_Client
+    SQL.Strings = (
+      'select * from USER'
+    )
+    Params = <>
+    UpdateMode = upWhereAll
+    left = 16
+    top = 80
+    object sqlAccountDOC: TStringField
+      DisplayWidth = 15
+      FieldKind = fkData
+      FieldName = 'DOC'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      Size = 15
+    end
+    object sqlAccountACCESSKEY: TStringField
+      DisplayWidth = 15
+      FieldKind = fkData
+      FieldName = 'ACCESSKEY'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      Size = 15
+    end
+    object sqlAccountpassword: TStringField
+      DisplayWidth = 15
+      FieldKind = fkData
+      FieldName = 'password'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      Size = 15
+    end
+  end
+  object dsDoBackup: TDataSource
+    DataSet = sqlDoBackup
+    left = 88
+    top = 140
+  end
+  object sqlDoBackup: TSQLQuery
+    FieldDefs = <    
+      item
+        Name = 'id'
+        DataType = ftInteger
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'kindoftime'
+        DataType = ftFixedChar
+        Precision = -1
+        Size = 1
+      end    
+      item
+        Name = 'times'
+        DataType = ftInteger
+        Precision = -1
+        Size = 0
+      end    
+      item
+        Name = 'lastbackup'
+        DataType = ftDateTime
+        Precision = -1
+        Size = 0
+      end>
+    Database = conn_client
+    Transaction = SQLT_Client
+    SQL.Strings = (
+      'select * from dobackup'
+      ''
+    )
+    Params = <>
+    UpdateMode = upWhereAll
+    left = 16
+    top = 140
+    object sqlDoBackupid: TLongintField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'id'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object sqlDoBackupkindoftime: TStringField
+      DisplayWidth = 1
+      FieldKind = fkData
+      FieldName = 'kindoftime'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      Size = 1
+    end
+    object sqlDoBackuptimes: TLongintField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'times'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object sqlDoBackuplastbackup: TDateTimeField
+      DisplayWidth = 10
+      FieldKind = fkData
+      FieldName = 'lastbackup'
+      Index = 3
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+  end
+end
