@@ -305,6 +305,10 @@ object frm_main: Tfrm_main
         Caption = 'Config. Auto Backup'
         OnClick = mnuConfigAutoBackupClick
       end
+      object mnuFtpConfig: TMenuItem
+        Caption = 'Configuração FTP'
+        OnClick = mnuFtpConfigClick
+      end
     end
   end
   object triMain: TTrayIcon

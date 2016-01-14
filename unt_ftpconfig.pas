@@ -1,0 +1,86 @@
+unit unt_ftpConfig;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  Buttons, IniFiles;
+
+type
+
+  { Tfrm_ftpConfig }
+
+  Tfrm_ftpConfig = class(TForm)
+    btnCancel: TBitBtn;
+    btnSave: TBitBtn;
+    edtServer: TEdit;
+    edtPort: TEdit;
+    edtRepoPath: TEdit;
+    edtUser: TEdit;
+    edtPasswd: TEdit;
+    procedure btnCancelClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { private declarations }
+  public
+    { public declarations }
+  end;
+
+var
+  frm_ftpConfig: Tfrm_ftpConfig;
+
+implementation
+
+uses unt_main;
+
+{$R *.lfm}
+
+{ Tfrm_ftpConfig }
+
+procedure Tfrm_ftpConfig.btnCancelClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure Tfrm_ftpConfig.btnSaveClick(Sender: TObject);
+var
+  iniFile: TInifile;
+begin
+  iniFile := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'conf.ini');
+  try
+    iniFile.WriteString('FTP', 'SERVER', edtServer.Text);
+    iniFile.WriteString('FTP', 'PORT', edtPort.Text);
+    iniFile.WriteString('FTP', 'REPO_PATH', edtRepoPath.Text);
+    frm_main.setFtpAccount(edtUser.Text, edtPasswd.Text);
+  finally
+    FreeAndNil(iniFile);
+  end;
+  Close;
+end;
+
+procedure Tfrm_ftpConfig.FormCreate(Sender: TObject);
+begin
+
+end;
+
+procedure Tfrm_ftpConfig.FormShow(Sender: TObject);
+var
+  iniFile: TIniFile;
+begin
+  iniFile := TIniFile.Create(ExtractFilePath(Application.ExeName) + 'conf.ini');
+  try
+    edtServer.Text := iniFile.ReadString('FTP', 'SERVER', '');
+    edtPort.Text := iniFile.ReadString('FTP', 'PORT', '21');
+    edtRepoPath.Text := iniFile.ReadString('FTP', 'REPO_PATH', '/web/repo/');
+
+  finally
+    FreeAndNil(iniFile);
+  end;
+end;
+
+end.
+

@@ -5,7 +5,7 @@ unit udm_main;
 interface
 
 uses
-  Classes, SysUtils, mysql56conn, sqlite3conn, sqldb, db, FileUtil, Forms,
+  Classes, SysUtils, mysql56conn, sqlite3conn, sqldb, DB, FileUtil, Forms,
   LCLType;
 
 type

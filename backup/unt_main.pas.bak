@@ -7,8 +7,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, RTTICtrls, Forms, Controls, Graphics, Dialogs,
   Menus, DBGrids, ComCtrls, Buttons, StdCtrls, EditBtn, maskedit, unt_config,
-  unt_utils, unt_inputPassword, unt_autoBackup, udm_main, DB, sqldb, LCLType,
-  ExtCtrls, LMessages, PopupNotifier, ftpsend, ACBrCalculadora;
+  unt_utils, unt_inputPassword, unt_autoBackup, udm_main, unt_ftpConfig, DB,
+  sqldb, LCLType, ExtCtrls, LMessages, PopupNotifier, ftpsend, IniFiles;
 
 type
 
@@ -23,6 +23,7 @@ type
     dsFiles: TDataSource;
     grd_repositories: TDBGrid;
     gb_Actions: TGroupBox;
+    mnuFtpConfig: TMenuItem;
     mnuDelete: TMenuItem;
     mnuMain: TMainMenu;
     mnuConfigAutoBackup: TMenuItem;
@@ -52,13 +53,22 @@ type
     procedure mnuConfigAutoBackupClick(Sender: TObject);
     procedure mnuConfigClick(Sender: TObject);
     procedure mnuDeleteClick(Sender: TObject);
+    procedure mnuFtpConfigClick(Sender: TObject);
     procedure tmrTrayTimer(Sender: TObject);
     procedure triMainDblClick(Sender: TObject);
     procedure WMCloseQuery(var message: TLMessage); message LM_CLOSEQUERY;
     function doBackup(aDate: TDateTime): boolean;
+    procedure setFtpAccount(user: String; passwd : String);
+    procedure loadFtpConfig;
 
   private
     { private declarations }
+    aServer: string;
+    aPort: string;
+    aFtpRepoPath: string;
+    aFtpUser: string;
+    aFtpPasswd: string;
+
   public
     { public declarations }
   end;
@@ -102,9 +112,9 @@ begin
     StringReplace(DateToStr(now), '/', '-', [rfReplaceAll]) + '\';
 
   frm_main.pb_progress.Position := 0;
-  FtpGetFile('ftp.compsoft.com.br', '21', '/Web/repo/' +
+  FtpGetFile(frm_main.aServer, frm_main.aPort, frm_main.aFtpRepoPath +
     frm_main.sqlFilesfilename.AsString, path + frm_main.sqlFilesfilename.AsString,
-    'compsoftnet', 'ajroverssi1163');
+    frm_main.aFtpUser, frm_main.aFtpPasswd);
   frm_main.pb_progress.Position := frm_main.pb_progress.Max;
 
 end;
@@ -135,14 +145,14 @@ begin
 
   while not (sql.EOF) do
   begin
-    FtpPutFile('ftp.compsoft.com.br', '21', '/Web/repo/' +
+    FtpPutFile(frm_main.aServer, frm_main.aPort, frm_main.aFtpRepoPath +
       sql.FieldByName('filename').AsString,
-      sql.FieldByName('filepath').AsString, 'compsoftnet', 'ajroverssi1163');
+      sql.FieldByName('filepath').AsString, frm_main.aFtpUser, frm_main.aFtpPasswd);
 
-      sql.Edit;
-      sql.FieldByName('lastbackup').AsDateTime := now;
-      sql.Post;
-      sql.ApplyUpdates;
+    sql.Edit;
+    sql.FieldByName('lastbackup').AsDateTime := now;
+    sql.Post;
+    sql.ApplyUpdates;
 
     sql.Next;
 
@@ -175,6 +185,33 @@ begin
   Send.FreeOnTerminate := True;
   Send.Resume;
   pb_progress.Position := 0;
+end;
+
+procedure Tfrm_main.setFtpAccount(user: String; passwd: String);
+begin
+  aFtpUser := user;
+  aFtpPasswd := passwd;
+end;
+
+procedure Tfrm_main.loadFtpConfig;
+var
+  iniFile: TInifile;
+  Arq: string;
+begin
+  Arq := ExtractFilePath(Application.ExeName) + 'conf.ini';
+  iniFile := TIniFile.Create(Arq);
+  try
+    aServer := iniFile.ReadString('FTP', 'SERVER', '');
+    aPort := iniFile.ReadString('FTP', 'PORT', '21');
+    aFtpRepoPath := iniFile.ReadString('FTP', 'REPO_PATH', '/web/repo/');
+
+  finally
+    FreeAndNil(iniFile);
+  end;
+  if ((aServer = '') or (aFtpUser = '') or (aFtpPasswd = '')) then
+    Application.MessageBox('Dados do FTP não Configurados', 'Aviso!',
+      MB_OK + MB_ICONWARNING);
+
 end;
 
 procedure Tfrm_main.FormWindowStateChange(Sender: TObject);
@@ -262,7 +299,7 @@ end;
 
 procedure Tfrm_main.FormCreate(Sender: TObject);
 begin
-
+  loadFtpConfig;
 end;
 
 procedure Tfrm_main.FormShow(Sender: TObject);
@@ -348,6 +385,17 @@ begin
     end;
     sqlFiles.Open;
   end;
+end;
+
+procedure Tfrm_main.mnuFtpConfigClick(Sender: TObject);
+begin
+  Application.CreateForm(Tfrm_ftpConfig, frm_ftpConfig);
+  try
+    frm_ftpConfig.ShowModal;
+  finally
+    FreeAndNil(frm_ftpConfig);
+  end;
+  loadFtpConfig;
 end;
 
 procedure Tfrm_main.tmrTrayTimer(Sender: TObject);
