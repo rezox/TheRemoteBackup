@@ -13,7 +13,7 @@ object frm_main: Tfrm_main
   OnShow = FormShow
   OnWindowStateChange = FormWindowStateChange
   Position = poDesktopCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.6.0.4'
   object grd_repositories: TDBGrid
     Left = 153
     Height = 444
@@ -351,9 +351,10 @@ object frm_main: Tfrm_main
       0000000000000000000000000000000000000000000000000000000000000000
       0000
     }
+    OnClick = triMainClick
     OnDblClick = triMainDblClick
     left = 176
-    top = 432
+    top = 440
   end
   object tmrTray: TTimer
     OnTimer = tmrTrayTimer
@@ -371,7 +372,6 @@ object frm_main: Tfrm_main
         Name = 'id'
         DataType = ftInteger
         Precision = -1
-        Size = 0
       end    
       item
         Name = 'filename'
@@ -389,19 +389,18 @@ object frm_main: Tfrm_main
         Name = 'inclusiondate'
         DataType = ftDateTime
         Precision = -1
-        Size = 0
       end    
       item
         Name = 'lastbackup'
         DataType = ftDateTime
         Precision = -1
-        Size = 0
       end>
     Database = dm_main.conn_client
     Transaction = dm_main.SQLT_Client
     SQL.Strings = (
       '      select * from file'
     )
+    Options = []
     Params = <>
     UpdateMode = upWhereAll
     left = 544

@@ -55,6 +55,7 @@ type
     procedure mnuDeleteClick(Sender: TObject);
     procedure mnuFtpConfigClick(Sender: TObject);
     procedure tmrTrayTimer(Sender: TObject);
+    procedure triMainClick(Sender: TObject);
     procedure triMainDblClick(Sender: TObject);
     procedure WMCloseQuery(var message: TLMessage); message LM_CLOSEQUERY;
     function doBackup(aDate: TDateTime): boolean;
@@ -403,6 +404,11 @@ begin
   triMain.Visible := True;
   frm_main.Hide;
   tmrTray.Enabled := False;
+end;
+
+procedure Tfrm_main.triMainClick(Sender: TObject);
+begin
+
 end;
 
 procedure Tfrm_main.triMainDblClick(Sender: TObject);

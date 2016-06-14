@@ -1,0 +1,212 @@
+procedure Tfrm_principal.SockCallBack(Sender: TObject; Reason: THookSocketReason;
+  const Value: string);
+begin
+  // Download;
+  if (Reason = HR_ReadCount) then // HR_ReadCount // Quantidade de dados baixados;
+  begin
+    memoLog.Lines.Add(IntToStr(currentBytes) + ' ' + IntToStr(currentBytes));
+    beforeBytes := currentBytes;
+    Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade de dados;
+    ProgressBar1.Position := Round(1000 * (currentBytes / totalBytes));
+      {lbl_taxa.Caption := 'Download: ' + IntToStr(Trunc(currentBytes / 1024)) +
+        '/' + IntToStr(Trunc(totalBytes / 1024)) + ' KBs';}
+  end;
+
+  // Upload;
+  if (Reason = HR_WriteCount) then // HR_WriteCount // Quantidade de dados transferidos;
+  begin
+    memoLog2.Lines.Add(IntToStr(currentBytes) + ' ' + IntToStr(currentBytes));
+    beforeBytes := currentBytes;
+    Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade transferida;
+    ProgressBar1.Position := Round(1000 * (currentBytes / totalBytes));
+      {lbl_taxa.Caption := 'Upload: ' + IntToStr(Trunc(currentBytes / 1024)) +
+        '/' + IntToStr(Trunc(totalBytes / 1024)) + ' KBs';}
+  end;
+  Application.ProcessMessages;
+
+  if (Reason = HR_Connect) then
+  begin
+    beforeBytes := 0;
+    currentBytes := 0;
+    segundos := 0;
+  end;
+end;
+
+function Tfrm_principal.download(url, caminho, arquivoLocal, arquivoRemoto:
+  string): boolean;
+const
+  FTPPort = 21;
+  FTPScheme = 'ftp://'; // Formato do FTP;
+var
+  host: string;
+  port: integer;
+  foundPos: integer;
+  ftp: TFTPSend;
+  //Source: string;
+begin
+  ProgressBar1.Position := 0;
+
+  // Verifica se o formato da URL esta certo;
+  if (LeftStr(url, length(FTPScheme)) = FTPScheme) then
+    url := Copy(url, length(FTPScheme) + 1, length(url));
+
+  foundPos := Pos('/', url);
+  host := LeftStr(url, foundPos - 1);
+  //Source := Copy(URL, FoundPos+1, Length(URL));
+
+  // Verifica o número da Porta;
+  foundPos := Pos(':', host);
+  port := FTPPort;
+  if (foundPos > 0) then
+  begin
+    host := LeftStr(host, foundPos - 1);
+    port := StrToIntDef(Copy(host, foundPos + 1, Length(host)), 21);
+  end;
+
+  // Cria um objeto FTP e adiciona os parâmetros de conexão;
+  try
+    ftp := TFTPSend.Create;
+    ftp.Username := 'suporte@compsoftnet';
+    ftp.Password := '';
+    ftp.TargetHost := host;
+    ftp.TargetPort := IntToStr(port);
+    Application.ProcessMessages;
+
+    // Atualiza a barra;
+    ftp.DSock.OnStatus := @SockCallBack;
+
+    // Login;
+    if ftp.Login then
+      memoLog.Lines.Add('Login: Efetuado')
+    else
+    begin
+      memoLog.Lines.Add('Login: Incorreto');
+      Application.MessageBox('Login incorreto', 'Atenção !!!', MB_ICONWARNING);
+      Exit;
+    end;
+
+    // Define o nome do arquivo para o FTP;
+    ftp.DirectFileName := caminho + arquivoLocal;
+    ftp.DirectFile := True;
+    totalBytes := ftp.FileSize(arquivoRemoto);
+
+    memoLog.Lines.Add('Nome do arquivo FTP: ' + arquivoRemoto);
+    memoLog.Lines.Add('Tamanho: ' + FormatFloat('##,##0.00',
+      (totalBytes / 1024)) + ' KB');
+
+    // Verifica se a transferência foi conluída;
+    if (ftp.RetrieveFile(arquivoRemoto, False) = True) then
+      //if FtpGetFile(Host, IntToStr(Port), Source+arquivoRemoto, caminho+arquivoRemoto, 'suporte@compsoftnet', '') then
+    begin
+      memoLog.Lines.Add('Transferência completa');
+      Application.MessageBox('Download Completo', 'Concluído', MB_ICONINFORMATION);
+    end
+    else
+    begin
+      memoLog.Lines.add('Transferência falhou');
+      Application.MessageBox('Transferência falhou', 'Atenção !!!', MB_ICONWARNING);
+    end;
+
+    Application.ProcessMessages;
+    ftp.Logout;
+    memoLog.Lines.Add('Conexão fechada');
+    ProgressBar1.Position := 0;
+  except
+    ProgressBar1.Position := 0;
+    memoLog.Lines.Add('Conexão falhou');
+    ftp.Free;
+    Exit;
+  end;
+  ftp.Free;
+end;
+
+function Tfrm_principal.upload(url, caminho, arquivoLocal, arquivoRemoto,
+  caminhoRemoto: string): boolean;
+const
+  FTPPort = 21;
+  FTPScheme = 'ftp://'; // Formato do FTP;
+var
+  host: string;
+  port: integer;
+  foundPos: integer;
+  ftp: TFTPSend;
+  meuArquivo: file of byte;
+begin
+  ProgressBar1.Position := 0;
+
+  AssignFile(meuArquivo, caminho + arquivoLocal); // Cria um ponteiro;
+  Reset(meuArquivo); // Abre o arquivo para leitura;
+  totalBytes := FileSize(meuArquivo); // Obtém o tamanho do arquivo;
+  CloseFile(meuArquivo);
+
+  // Verifica se o formato da URL esta certo;
+  if (LeftStr(url, length(FTPScheme)) = FTPScheme) then
+    url := Copy(url, length(FTPScheme) + 1, length(url));
+
+  foundPos := Pos('/', url);
+  host := LeftStr(url, foundPos - 1);
+
+  // Verifica o número da Porta;
+  foundPos := Pos(':', host);
+  port := FTPPort;
+  if (foundPos > 0) then
+  begin
+    host := LeftStr(host, foundPos - 1);
+    port := StrToIntDef(Copy(host, foundPos + 1, Length(host)), 21);
+  end;
+
+  // Cria um objeto FTP e adiciona os parâmetros de conexão;
+  try
+    ftp := TFTPSend.Create;
+    ftp.Username := 'suporte@compsoftnet';
+    ftp.Password := '';
+    ftp.TargetHost := host;
+    ftp.TargetPort := IntToStr(port);
+    Application.ProcessMessages;
+
+    // Atualiza a barra;
+    ftp.DSock.OnStatus := @SockCallBack;
+
+    // Login;
+    if ftp.Login then
+      memoLog2.Lines.Add('Login: Efetuado')
+    else
+    begin
+      memoLog2.Lines.Add('Login: Incorreto');
+      Application.MessageBox('Login incorreto', 'Atenção !!!', MB_ICONWARNING);
+      Exit;
+    end;
+
+    // Define o nome do arquivo para o FTP;
+    ftp.DirectFileName := caminho + arquivoLocal;
+    ftp.DirectFile := True;
+
+    memoLog2.Lines.Add('Nome do arquivo Local: ' + arquivoLocal);
+    memoLog2.Lines.Add('Tamanho: ' + FormatFloat('##,##0.00',
+      (totalBytes / 1024)) + ' KB');
+
+    // Trocar diretório FTP;
+    if (caminhoRemoto <> '') then
+      ftp.ChangeWorkingDir(caminhoRemoto);
+
+    // Arquivo de armazenamento para o servidor FTP;
+    if (ftp.StoreFile(arquivoRemoto, False) = True) then
+    begin
+      memoLog2.Lines.Add('Transferência completa');
+      Application.MessageBox('Upload Completo', 'Concluído', MB_ICONINFORMATION);
+    end
+    else
+      memoLog2.Lines.add('Transferência falhou');
+
+    Application.ProcessMessages;
+    ftp.Logout;
+    memoLog2.Lines.Add('Conexão fechada');
+    ProgressBar1.Position := 0;
+  except
+    ProgressBar1.Position := 0;
+    memoLog2.Lines.Add('Conexão falhou');
+    ftp.Free;
+    Exit;
+  end;
+  ftp.Free;
+end;
