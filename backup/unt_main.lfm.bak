@@ -354,7 +354,7 @@ object frm_main: Tfrm_main
     OnClick = triMainClick
     OnDblClick = triMainDblClick
     left = 176
-    top = 440
+    top = 432
   end
   object tmrTray: TTimer
     OnTimer = tmrTrayTimer

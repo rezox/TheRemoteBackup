@@ -115,6 +115,7 @@
         <Filename Value="unt_inputpassword.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frm_inputPassword"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="unt_inputPassword"/>
       </Unit5>

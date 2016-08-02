@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, RTTICtrls, Forms, Controls, Graphics, Dialogs,
   Menus, DBGrids, ComCtrls, Buttons, StdCtrls, EditBtn, maskedit, unt_config,
   unt_utils, unt_inputPassword, unt_autoBackup, udm_main, unt_ftpConfig, DB,
-  sqldb, LCLType, ExtCtrls, LMessages, PopupNotifier, ftpsend, IniFiles;
+  sqldb, LCLType, ExtCtrls, LMessages, PopupNotifier, ftpsend, IniFiles, blcksock;
 
 type
 
@@ -61,6 +61,9 @@ type
     function doBackup(aDate: TDateTime): boolean;
     procedure setFtpAccount(user: string; passwd: string);
     procedure loadFtpConfig;
+    procedure SockCallBack(Sender: TObject; Reason: THookSocketReason;
+      const Value: string);
+    procedure upload();
 
   private
     { private declarations }
@@ -69,6 +72,10 @@ type
     aFtpRepoPath: string;
     aFtpUser: string;
     aFtpPasswd: string;
+
+    segundos: integer;
+
+    currentBytes, beforeBytes, totalBytes: integer;
 
   public
     { public declarations }
@@ -130,8 +137,16 @@ end;
 { TSendFile }
 
 procedure TSendFile.SyncEvent;
+begin
+
+end;
+
+procedure Tfrm_main.upload;
 var
   sql: TSQLQuery;
+  ftp: TFTPSend;
+  aFile: string;
+
 begin
   sql := TSQLQuery.Create(nil);
   sql.DataBase := dm_main.conn_client;
@@ -141,14 +156,66 @@ begin
   sql.Open;
   sql.Last;
   sql.First;
-  frm_main.pb_progress.Max := sql.RecordCount;
+
   frm_main.pb_progress.Position := 0;
 
   while not (sql.EOF) do
   begin
-    FtpPutFile(frm_main.aServer, frm_main.aPort, frm_main.aFtpRepoPath +
-      sql.FieldByName('filename').AsString,
-      sql.FieldByName('filepath').AsString, frm_main.aFtpUser, frm_main.aFtpPasswd);
+    try
+      //Get file size
+      aFile := sql.FieldByName('filepath').AsString;
+      totalBytes := FileSize(aFile);
+
+      ftp := TFTPSend.Create;
+      ftp.Username := frm_main.aFtpUser;
+      ftp.Password := frm_main.aFtpPasswd;
+      ftp.TargetHost := frm_main.aServer;
+      ftp.TargetPort := frm_main.aPort;
+      Application.ProcessMessages;
+
+      // Atualiza a barra;
+      ftp.DSock.OnStatus := @frm_main.SockCallBack;
+
+      // Login;
+      if not ftp.Login then
+      begin
+        Application.MessageBox('Login incorreto', 'Atenção !!!', MB_ICONWARNING);
+        Exit;
+      end;
+
+      // Define o nome do arquivo para o FTP;
+      aFile := sql.FieldByName('filepath').AsString;
+      ftp.DirectFileName := sql.FieldByName('filepath').AsString;
+      ftp.DirectFile := True;
+
+
+
+      // Trocar diretório FTP;
+      if (frm_main.aFtpRepoPath <> '') then
+        ftp.ChangeWorkingDir(frm_main.aFtpRepoPath);
+      aFile := sql.FieldByName('filename').AsString;
+      // Arquivo de armazenamento para o servidor FTP;
+      if (ftp.StoreFile(aFile, False) = True) then
+      begin
+        //memoLog2.Lines.Add('Transferência completa');
+        //Application.MessageBox('Upload Completo', 'Concluído', MB_ICONINFORMATION);
+      end;
+      //else
+      //memoLog2.Lines.add('Transferência falhou');
+
+      Application.ProcessMessages;
+      ftp.Logout;
+
+      frm_main.pb_progress.Position := 0;
+    except
+      frm_main.pb_progress.Position := 0;
+
+      ftp.Free;
+      Exit;
+    end;
+    ftp.Free;
+
+
 
     sql.Edit;
     sql.FieldByName('lastbackup').AsDateTime := now;
@@ -156,11 +223,11 @@ begin
     sql.ApplyUpdates;
 
     sql.Next;
-
-    frm_main.pb_progress.Position := frm_main.pb_progress.Position + 1;
   end;
   dm_main.SQLT_Client.Commit;
   frm_main.sqlFiles.Open;
+  frm_main.pb_progress.Position := 0;
+
 end;
 
 procedure TSendFile.Execute;
@@ -237,7 +304,8 @@ end;
 
 procedure Tfrm_main.btnUpdateRepositorieClick(Sender: TObject);
 begin
-  doBackup(now);
+  //doBackup(now);
+  upload();
 end;
 
 procedure Tfrm_main.btnRemoteRestoreClick(Sender: TObject);
@@ -310,6 +378,7 @@ end;
 
 
 procedure Tfrm_main.mnuAccessConfigClick(Sender: TObject);
+
 begin
   Application.CreateForm(Tfrm_inputPassword, frm_inputPassword);
 
@@ -324,6 +393,9 @@ begin
       finally
         FreeAndNil(frm_config);
       end;
+
+
+
       sqlFiles.Open;
     end
     else
@@ -415,6 +487,37 @@ procedure Tfrm_main.triMainDblClick(Sender: TObject);
 begin
   triMain.Visible := False;
   frm_main.Show;
+end;
+
+
+procedure Tfrm_main.SockCallBack(Sender: TObject; Reason: THookSocketReason;
+  const Value: string);
+begin
+  // Download;
+  if (Reason = HR_ReadCount) then // HR_ReadCount // Quantidade de dados baixados;
+  begin
+    beforeBytes := currentBytes;
+    Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade de dados;
+    pb_progress.Position := Round(1000 * (currentBytes / totalBytes));
+
+  end;
+
+  // Upload;
+  if (Reason = HR_WriteCount) then // HR_WriteCount // Quantidade de dados transferidos;
+  begin
+    beforeBytes := currentBytes;
+    Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade transferida;
+    pb_progress.Position := Round(1000 * (currentBytes / totalBytes));
+
+  end;
+  Application.ProcessMessages;
+
+  if (Reason = HR_Connect) then
+  begin
+    beforeBytes := 0;
+    currentBytes := 0;
+    segundos := 0;
+  end;
 end;
 
 

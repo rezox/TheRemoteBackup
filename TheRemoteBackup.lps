@@ -4,14 +4,14 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Debug"/>
-    <Units Count="18">
+    <Units Count="19">
       <Unit0>
         <Filename Value="TheRemoteBackup.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="5"/>
-        <CursorPos X="3" Y="22"/>
-        <UsageCount Value="41"/>
+        <EditorIndex Value="3"/>
+        <CursorPos Y="29"/>
+        <UsageCount Value="43"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="unt_main.pas"/>
@@ -19,10 +19,9 @@
         <ComponentName Value="frm_main"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="112"/>
-        <CursorPos X="41" Y="121"/>
-        <UsageCount Value="41"/>
+        <TopLine Value="380"/>
+        <CursorPos X="62" Y="393"/>
+        <UsageCount Value="43"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -32,10 +31,13 @@
         <ComponentName Value="frm_config"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="30"/>
-        <CursorPos X="28" Y="56"/>
-        <UsageCount Value="39"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="22"/>
+        <CursorPos X="74" Y="15"/>
+        <UsageCount Value="41"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="udm_main.pas"/>
@@ -46,25 +48,28 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="32"/>
         <CursorPos X="75" Y="8"/>
-        <UsageCount Value="36"/>
+        <UsageCount Value="38"/>
       </Unit3>
       <Unit4>
         <Filename Value="unt_utils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="66" Y="19"/>
-        <UsageCount Value="36"/>
+        <UsageCount Value="38"/>
       </Unit4>
       <Unit5>
         <Filename Value="unt_inputpassword.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frm_inputPassword"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="unt_inputPassword"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="25"/>
-        <CursorPos Y="55"/>
-        <UsageCount Value="27"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="21"/>
+        <CursorPos X="61" Y="39"/>
+        <UsageCount Value="29"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="unt_autobackup.pas"/>
@@ -76,7 +81,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="48"/>
         <CursorPos X="40" Y="54"/>
-        <UsageCount Value="26"/>
+        <UsageCount Value="28"/>
       </Unit6>
       <Unit7>
         <Filename Value="unt_ftpconfig.pas"/>
@@ -88,7 +93,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="49"/>
         <CursorPos X="56" Y="58"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="24"/>
       </Unit7>
       <Unit8>
         <Filename Value="C:\fortes\rlxlsfilter.pas"/>
@@ -166,28 +171,135 @@
         <CursorPos X="20" Y="9"/>
         <UsageCount Value="20"/>
       </Unit17>
+      <Unit18>
+        <Filename Value="C:\ACBr\Fontes\Terceiros\synalist\ftpsend.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="450"/>
+        <CursorPos X="10" Y="458"/>
+        <UsageCount Value="10"/>
+      </Unit18>
     </Units>
-    <JumpHistory Count="5" HistoryIndex="4">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="unt_main.pas"/>
-        <Caret Line="147" TopLine="136"/>
+        <Caret Line="206" Column="35" TopLine="185"/>
       </Position1>
       <Position2>
         <Filename Value="unt_main.pas"/>
-        <Caret Line="212" Column="63" TopLine="192"/>
+        <Caret Line="150" TopLine="129"/>
       </Position2>
       <Position3>
         <Filename Value="unt_main.pas"/>
-        <Caret Line="118" Column="84" TopLine="101"/>
+        <Caret Line="186" TopLine="169"/>
       </Position3>
       <Position4>
         <Filename Value="unt_main.pas"/>
-        <Caret Line="308" Column="3" TopLine="306"/>
+        <Caret Line="196" TopLine="169"/>
       </Position4>
       <Position5>
         <Filename Value="unt_main.pas"/>
-        <Caret Line="223" Column="8" TopLine="372"/>
+        <Caret Line="198" TopLine="177"/>
       </Position5>
+      <Position6>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="209" Column="53" TopLine="177"/>
+      </Position6>
+      <Position7>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="196" TopLine="161"/>
+      </Position7>
+      <Position8>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="505" TopLine="482"/>
+      </Position8>
+      <Position9>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="206" Column="94" TopLine="206"/>
+      </Position9>
+      <Position10>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="522" Column="5" TopLine="478"/>
+      </Position10>
+      <Position11>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="78" Column="51" TopLine="44"/>
+      </Position11>
+      <Position12>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="150" TopLine="129"/>
+      </Position12>
+      <Position13>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="506" TopLine="462"/>
+      </Position13>
+      <Position14>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="199" Column="12" TopLine="180"/>
+      </Position14>
+      <Position15>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="509" TopLine="485"/>
+      </Position15>
+      <Position16>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="166" TopLine="147"/>
+      </Position16>
+      <Position17>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="167" TopLine="147"/>
+      </Position17>
+      <Position18>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="168" TopLine="147"/>
+      </Position18>
+      <Position19>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="169" TopLine="147"/>
+      </Position19>
+      <Position20>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="170" TopLine="147"/>
+      </Position20>
+      <Position21>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="166" TopLine="147"/>
+      </Position21>
+      <Position22>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="167" TopLine="147"/>
+      </Position22>
+      <Position23>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="169" TopLine="147"/>
+      </Position23>
+      <Position24>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="167" TopLine="147"/>
+      </Position24>
+      <Position25>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="511" Column="64" TopLine="482"/>
+      </Position25>
+      <Position26>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="472" Column="3" TopLine="470"/>
+      </Position26>
+      <Position27>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="315" Column="3" TopLine="311"/>
+      </Position27>
+      <Position28>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="382" Column="3" TopLine="380"/>
+      </Position28>
+      <Position29>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="381" Column="4" TopLine="378"/>
+      </Position29>
+      <Position30>
+        <Filename Value="unt_main.pas"/>
+        <Caret Line="393" Column="62" TopLine="380"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
