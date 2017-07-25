@@ -48,6 +48,8 @@ Temporary Items
 
 RESTORES/
 
-*.sqlite
+TRB_DB.sqlite
 TheRemoteBackup.exe
 *.bak
+backup/
+*.dbg
