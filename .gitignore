@@ -4,15 +4,20 @@ ehthumbs.db
 
 # Folder config file
 Desktop.ini
+TheRemoteBackup.exe
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+backup/
 
 # Windows Installer files
 *.cab
 *.msi
 *.msm
 *.msp
+*.sqlite
+*.bak
+*.dbg
 
 # Windows shortcuts
 *.lnk
@@ -48,8 +53,3 @@ Temporary Items
 
 RESTORES/
 
-TRB_DB.sqlite
-TheRemoteBackup.exe
-*.bak
-backup/
-*.dbg
