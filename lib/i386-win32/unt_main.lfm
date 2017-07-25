@@ -1,7 +1,7 @@
 object frm_main: Tfrm_main
-  Left = 309
+  Left = 305
   Height = 542
-  Top = 205
+  Top = 210
   Width = 729
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
@@ -12,7 +12,7 @@ object frm_main: Tfrm_main
   OnCreate = FormCreate
   OnShow = FormShow
   OnWindowStateChange = FormWindowStateChange
-  Position = poDesktopCenter
+  Position = poScreenCenter
   LCLVersion = '1.6.0.4'
   object grd_repositories: TDBGrid
     Left = 153
@@ -291,6 +291,17 @@ object frm_main: Tfrm_main
       TabOrder = 3
     end
   end
+  object lblStatus: TLabel
+    Left = 152
+    Height = 15
+    Top = 468
+    Width = 126
+    Caption = 'Status: Aguardando . . .'
+    Font.Color = 8404992
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
   object mnuMain: TMainMenu
     left = 176
     top = 384
@@ -353,13 +364,13 @@ object frm_main: Tfrm_main
     }
     OnClick = triMainClick
     OnDblClick = triMainDblClick
-    left = 176
-    top = 432
+    left = 248
+    top = 392
   end
   object tmrTray: TTimer
     OnTimer = tmrTrayTimer
-    left = 224
-    top = 432
+    left = 304
+    top = 392
   end
   object dsFiles: TDataSource
     DataSet = sqlFiles

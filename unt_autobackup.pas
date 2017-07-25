@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, DBCtrls,
-  StdCtrls, Buttons, udm_main, dbcurredit, LCLType;
+  StdCtrls, Buttons, udm_main, rxcurredit, rxdbcurredit,  LCLType;
 
 type
 

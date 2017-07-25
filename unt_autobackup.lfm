@@ -1,7 +1,7 @@
 object frm_autoBackup: Tfrm_autoBackup
-  Left = 506
+  Left = 757
   Height = 178
-  Top = 281
+  Top = 299
   Width = 227
   BorderIcons = [biMinimize, biMaximize]
   BorderStyle = bsDialog
@@ -10,7 +10,7 @@ object frm_autoBackup: Tfrm_autoBackup
   ClientWidth = 227
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.6.0.4'
   object rdgKind: TDBRadioGroup
     Left = 112
     Height = 80
@@ -43,28 +43,11 @@ object frm_autoBackup: Tfrm_autoBackup
     ParentColor = False
     ParentFont = False
   end
-  object edtBackupTimes: TRxDBCurrEdit
-    Left = 8
-    Height = 23
-    Top = 29
-    Width = 96
-    Alignment = taRightJustify
-    DecimalPlaces = 0
-    DisplayFormat = '#'
-    Enabled = False
-    MaxValue = 0
-    MinValue = 1
-    TabOrder = 1
-    Value = 1
-    ZeroEmpty = False
-    DataField = 'times'
-    DataSource = dm_main.dsDoBackup
-  end
   object Label1: TLabel
     Left = 8
     Height = 15
     Top = 13
-    Width = 29
+    Width = 28
     Caption = 'Vezes'
     ParentColor = False
   end
@@ -120,7 +103,7 @@ object frm_autoBackup: Tfrm_autoBackup
     }
     Layout = blGlyphTop
     OnClick = btnSaveClick
-    TabOrder = 2
+    TabOrder = 1
   end
   object btnCancel: TBitBtn
     Left = 149
@@ -166,6 +149,22 @@ object frm_autoBackup: Tfrm_autoBackup
     }
     Layout = blGlyphTop
     OnClick = btnCancelClick
+    TabOrder = 2
+  end
+  object edtBackupTimes: TRxDBCurrEdit
+    Left = 8
+    Height = 23
+    Top = 28
+    Width = 96
+    Alignment = taRightJustify
+    DecimalPlaces = 0
+    DisplayFormat = '#'
+    Enabled = False
+    MaxValue = 0
+    MinValue = 1
     TabOrder = 3
+    Value = 1
+    DataField = 'times'
+    DataSource = dm_main.dsDoBackup
   end
 end

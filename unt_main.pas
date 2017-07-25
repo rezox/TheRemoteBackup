@@ -23,6 +23,7 @@ type
     dsFiles: TDataSource;
     grd_repositories: TDBGrid;
     gb_Actions: TGroupBox;
+    lblStatus: TLabel;
     mnuFtpConfig: TMenuItem;
     mnuDelete: TMenuItem;
     mnuMain: TMainMenu;
@@ -58,13 +59,12 @@ type
     procedure triMainClick(Sender: TObject);
     procedure triMainDblClick(Sender: TObject);
     procedure WMCloseQuery(var message: TLMessage); message LM_CLOSEQUERY;
-    function doBackup(aDate: TDateTime): boolean;
     procedure setFtpAccount(user: string; passwd: string);
     procedure loadFtpConfig;
     procedure SockCallBack(Sender: TObject; Reason: THookSocketReason;
       const Value: string);
     procedure upload();
-
+    procedure download();
   private
     { private declarations }
     aServer: string;
@@ -111,6 +111,7 @@ implementation
 procedure TReceiveFile.SyncEvent;
 var
   path: string;
+  ftp: TFTPSend;
 begin
   CreateDir(ExtractFilePath(ApplicationName) + 'RESTORES');
   CreateDir(ExtractFilePath(ApplicationName) + 'RESTORES\' +
@@ -119,12 +120,33 @@ begin
   path := ExtractFilePath(ApplicationName) + 'RESTORES\' +
     StringReplace(DateToStr(now), '/', '-', [rfReplaceAll]) + '\';
 
-  frm_main.pb_progress.Position := 0;
-  FtpGetFile(frm_main.aServer, frm_main.aPort, frm_main.aFtpRepoPath +
-    frm_main.sqlFilesfilename.AsString, path + frm_main.sqlFilesfilename.AsString,
-    frm_main.aFtpUser, frm_main.aFtpPasswd);
-  frm_main.pb_progress.Position := frm_main.pb_progress.Max;
+  ftp := TFTPSend.Create;
 
+  ftp.Username := frm_main.aFtpUser;
+  ftp.Password := frm_main.aFtpPasswd;
+  ftp.TargetHost := frm_main.aServer;
+  ftp.TargetPort := frm_main.aPort;
+  Application.ProcessMessages;
+
+  // Atualiza a barra;
+  ftp.DSock.OnStatus := @frm_main.SockCallBack;
+
+  if (not ftp.RetrieveFile(frm_main.aFtpRepoPath + Frm_main.sqlFilesfilename.AsString,False)) then
+    frm_main.lblStatus.Caption := 'Status: Erro ao Baixar Arquivo'
+  else
+    frm_main.lblStatus.Caption := 'Status: Arquivo Restaurado com Sucesso!';
+
+
+  //frm_main.pb_progress.Position := 0;
+  //if ( not ftpGetFile(frm_main.aServer, frm_main.aPort, frm_main.aFtpRepoPath +
+  //  frm_main.sqlFilesfilename.AsString, path + frm_main.sqlFilesfilename.AsString,
+  //  frm_main.aFtpUser, frm_main.aFtpPasswd)) then
+  //begin
+  //  Application.MessageBox('Arquivo não Encontrado!', 'Aviso', MB_OK + MB_ICONWARNING);
+  //
+  //end
+  //else
+  //  frm_main.pb_progress.Position := frm_main.pb_progress.Max;
 end;
 
 procedure TReceiveFile.Execute;
@@ -146,7 +168,6 @@ var
   sql: TSQLQuery;
   ftp: TFTPSend;
   aFile: string;
-
 begin
   sql := TSQLQuery.Create(nil);
   sql.DataBase := dm_main.conn_client;
@@ -188,20 +209,16 @@ begin
       ftp.DirectFileName := sql.FieldByName('filepath').AsString;
       ftp.DirectFile := True;
 
-
-
       // Trocar diretório FTP;
       if (frm_main.aFtpRepoPath <> '') then
         ftp.ChangeWorkingDir(frm_main.aFtpRepoPath);
       aFile := sql.FieldByName('filename').AsString;
+
       // Arquivo de armazenamento para o servidor FTP;
       if (ftp.StoreFile(aFile, False) = True) then
-      begin
-        //memoLog2.Lines.Add('Transferência completa');
-        //Application.MessageBox('Upload Completo', 'Concluído', MB_ICONINFORMATION);
-      end;
-      //else
-      //memoLog2.Lines.add('Transferência falhou');
+        lblStatus.Caption := 'Status: Backup Realizado com Sucesso!'
+      else
+        lblStatus.Caption := 'Status: Erro ao Realizar Backup!';
 
       Application.ProcessMessages;
       ftp.Logout;
@@ -230,6 +247,49 @@ begin
 
 end;
 
+procedure Tfrm_main.download;
+var
+  path, aFile: string;
+  ftp: TFTPSend;
+begin
+  CreateDir(ExtractFilePath(ApplicationName) + 'RESTORES');
+  CreateDir(ExtractFilePath(ApplicationName) + 'RESTORES\' +
+    StringReplace(DateToStr(now), '/', '-', [rfReplaceAll]));
+
+  path := ExtractFilePath(ApplicationName) + 'RESTORES\' +
+    StringReplace(DateToStr(now), '/', '-', [rfReplaceAll]) + '\';
+
+  ftp := TFTPSend.Create;
+
+  ftp.Username := frm_main.aFtpUser;
+  ftp.Password := frm_main.aFtpPasswd;
+  ftp.TargetHost := frm_main.aServer;
+  ftp.TargetPort := frm_main.aPort;
+  Application.ProcessMessages;
+
+  // Define o nome do arquivo para o FTP;
+  aFile := Frm_main.sqlFilesfilename.AsString;
+  ftp.DirectFileName := aFile;
+  ftp.DirectFile:= false;
+
+  ftp.DSock.OnStatus := @frm_main.SockCallBack;
+
+  if (ftp.Login) then
+  begin
+    totalBytes := ftp.FileSize(frm_main.aFtpRepoPath + aFile);
+    if (not ftp.RetrieveFile(frm_main.aFtpRepoPath + aFile,False)) then
+      frm_main.lblStatus.Caption := 'Status: Erro ao Baixar Arquivo'
+    else
+    begin
+      ftp.DataStream.SaveToFile(path + aFile);
+      frm_main.lblStatus.Caption := 'Status: Arquivo Restaurado com Sucesso!';
+    end;
+  end
+  else
+    frm_main.lblStatus.Caption := 'Status: Arquivo Restaurado com Sucesso!';
+
+end;
+
 procedure TSendFile.Execute;
 begin
   Priority := tpNormal;
@@ -243,16 +303,6 @@ procedure Tfrm_main.WMCloseQuery(var message: TLMessage);
 begin
   triMain.Visible := True;
   frm_main.Hide;
-end;
-
-function Tfrm_main.doBackup(aDate: TDateTime): boolean;
-var
-  Send: TSendFile;
-begin
-  Send := TSendFile.Create(True);
-  Send.FreeOnTerminate := True;
-  Send.Resume;
-  pb_progress.Position := 0;
 end;
 
 procedure Tfrm_main.setFtpAccount(user: string; passwd: string);
@@ -276,9 +326,9 @@ begin
   finally
     FreeAndNil(iniFile);
   end;
-  if ((aServer = '') or (aFtpUser = '') or (aFtpPasswd = '')) then
-    Application.MessageBox('Dados do FTP não Configurados', 'Aviso!',
-      MB_OK + MB_ICONWARNING);
+  //if ((aServer = '') or (aFtpUser = '') or (aFtpPasswd = '')) then
+  //  Application.MessageBox('Dados do FTP não Configurados', 'Aviso!',
+  //    MB_OK + MB_ICONWARNING);
 
 end;
 
@@ -298,13 +348,13 @@ end;
 
 procedure Tfrm_main.grd_repositoriesDblClick(Sender: TObject);
 begin
-  ppmGrid.PopUp;
+  if ( not sqlFiles.IsEmpty) then
+    ppmGrid.PopUp;
 end;
 
 
 procedure Tfrm_main.btnUpdateRepositorieClick(Sender: TObject);
 begin
-  //doBackup(now);
   upload();
 end;
 
@@ -312,10 +362,11 @@ procedure Tfrm_main.btnRemoteRestoreClick(Sender: TObject);
 var
   Receive: TReceiveFile;
 begin
-  Receive := TReceiveFile.Create(True);
-  Receive.FreeOnTerminate := True;
-  Receive.Resume;
-  pb_progress.Position := 0;
+  download();
+  //Receive := TReceiveFile.Create(True);
+  //Receive.FreeOnTerminate := True;
+  //Receive.Resume;
+  //pb_progress.Position := 0;
 end;
 
 procedure Tfrm_main.btnExitClick(Sender: TObject);
@@ -374,6 +425,7 @@ end;
 procedure Tfrm_main.FormShow(Sender: TObject);
 begin
   sqlFiles.Open;
+  setFtpAccount('Admin', '123456');
 end;
 
 
@@ -447,6 +499,7 @@ begin
     mrYes then
   begin
     try
+
       sqlFiles.Delete;
       sqlFiles.ApplyUpdates;
       dm_main.SQLT_Client.Commit;
@@ -498,7 +551,7 @@ begin
     beforeBytes := currentBytes;
     Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade de dados;
     pb_progress.Position := Round(1000 * (currentBytes / totalBytes));
-
+    lblStatus.Caption := 'Status: Realizando Download';
   end;
 
   // Upload;
@@ -507,7 +560,7 @@ begin
     beforeBytes := currentBytes;
     Inc(currentBytes, StrToIntDef(Value, 0)); // Incrementa a quantidade transferida;
     pb_progress.Position := Round(1000 * (currentBytes / totalBytes));
-
+    lblStatus.Caption := 'Status: Realizando Backup';
   end;
   Application.ProcessMessages;
 
